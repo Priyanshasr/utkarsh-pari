@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>UTKARSH × PARI — THE STORY (Five Years)</title>
+    
+    <!-- Meta tags for SEO & Sharing -->
+    <meta name="description" content="A private Netflix-style documentary web app celebrating 5 years of Utkarsh and Pari.">
+    <meta property="og:title" content="UTKARSH × PARI — THE STORY">
+    <meta property="og:description" content="One Story · Five Years · Infinite Little Moments">
+    <meta name="theme-color" content="#050505">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Ambient Particle Canvas -->
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-progress-bar" id="progressBar"></div>
+
+    <!-- Password Screen (Gate) -->
+    <div id="passwordScreen" class="password-screen">
+        <div class="lock-card">
+            <div class="lock-badge"><i class="fa-solid fa-lock"></i> PRIVATE SCREENING</div>
+            <h1 class="lock-title">16<span class="dot">·</span>10</h1>
+            <p class="lock-subtitle">Enter the date that changed everything to unlock our story.</p>
+            
+            <form id="passForm" onsubmit="handleUnlock(event)">
+                <div class="input-wrapper">
+                    <input type="password" id="passInput" maxlength="8" placeholder="ENTER PASSWORD" autocomplete="off" autofocus>
+                    <button type="submit" class="unlock-btn"><i class="fa-solid fa-play"></i> UNLOCK</button>
+                </div>
+                <div id="passError" class="pass-error"></div>
+            </form>
+            
+            <div class="lock-hint">
+                <span><i class="fa-solid fa-lightbulb"></i> Hint: Your anniversary date (16-10 or 1610)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Web App Shell (Hidden until unlocked) -->
+    <div id="appShell" class="app-shell hidden">
+
+        <!-- Top Navigation Bar -->
+        <nav class="navbar" id="navbar">
+            <div class="nav-brand">
+                <span class="net-logo">U<span class="red">×</span>P</span>
+                <span class="brand-divider">|</span>
+                <span class="brand-sub">FIVE YEARS</span>
+            </div>
+            
+            <div class="nav-links">
+                <a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="#story" class="nav-link"><i class="fa-solid fa-film"></i> Storyline</a>
+                <a href="#special-moments" class="nav-link"><i class="fa-solid fa-heart"></i> Photo Moments</a>
+                <a href="#memories" class="nav-link"><i class="fa-solid fa-clone"></i> Memory Deck</a>
+                <a href="#quiz" class="nav-link"><i class="fa-solid fa-heart-pulse"></i> Love Quiz</a>
+                <a href="#archive" class="nav-link"><i class="fa-solid fa-images"></i> Media Vault</a>
+            </div>
+
+            <!-- Audio Control Widget -->
+            <div class="audio-control-widget" id="audioWidget">
+                <button id="audioToggleBtn" class="audio-btn" title="Toggle Soundtrack">
+                    <i class="fa-solid fa-music"></i>
+                </button>
+                <div class="equalizer-bars" id="eqBars">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="hero-bg-overlay"></div>
+            <div class="hero-media-backdrop" id="heroMediaBackdrop" style="background-image: url('assets/photo_47.jpg'); filter: brightness(0.42);"></div>
+            
+            <div class="hero-content">
+                <div class="hero-tag"><i class="fa-solid fa-star"></i> A NETFLIX-STYLE ORIGINAL DOCUMENTARY</div>
+                <h1 class="hero-title">It was never<br><span class="italic-serif">supposed</span> to happen.</h1>
+                <p class="hero-description">
+                    He noticed her across a crowded marriage hall. She didn't even notice him. He tried to follow her home, but lost sight in the crowd. 
+                    Then, somehow, life placed her right in front of his door.
+                </p>
+                
+                <!-- Live Relationship Counter -->
+                <div class="together-counter-card">
+                    <div class="counter-label"><i class="fa-solid fa-clock"></i> TOGETHER FOR EXACTLY</div>
+                    <div class="counter-grid" id="liveCounterGrid">
+                        <div class="counter-box"><span id="cYears">0</span><label>Years</label></div>
+                        <div class="counter-box"><span id="cMonths">0</span><label>Months</label></div>
+                        <div class="counter-box"><span id="cDays">0</span><label>Days</label></div>
+                        <div class="counter-box"><span id="cHours">0</span><label>Hours</label></div>
+                        <div class="counter-box"><span id="cMins">0</span><label>Mins</label></div>
+                        <div class="counter-box"><span id="cSecs">0</span><label>Secs</label></div>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="scrollToSection('story')">
+                        <i class="fa-solid fa-play"></i> START DOCUMENTARY
+                    </button>
+                    <button class="btn btn-secondary" onclick="scrollToSection('archive')">
+                        <i class="fa-solid fa-photo-film"></i> OPEN MEDIA VAULT (53 PHOTOS)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Big Quote Section 1 -->
+        <section class="quote-break-section">
+            <div class="quote-container reveal">
+                <div class="quote-mark">“</div>
+                <p class="quote-text">Yes, mil gayi ladki.</p>
+                <div class="quote-author">— THE MOMENT THE DOOR OPENED (DECEMBER 2020)</div>
+            </div>
+        </section>
+
+        <!-- Chapters Storyline Section -->
+        <section id="story" class="chapters-section">
+            <div class="section-header reveal">
+                <div class="section-tag">CINEMATIC TIMELINE</div>
+                <h2 class="section-title">One Story · Nine Chapters</h2>
+                <p class="section-subtitle">Scroll down to experience our complete 5-year journey step by step.</p>
+            </div>
+
+            <div class="chapters-container">
+
+                <!-- Chapter 1 -->
+                <div class="chapter-card reveal">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge">CHAPTER 01</div>
+                        <img src="assets/photo_27.jpg" alt="Holding Cheeks Cute Moment" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date">30 NOVEMBER 2020 · AMBIKA MARRIAGE HALL</div>
+                        <h3 class="chapter-title">He saw a girl. She kept eating.</h3>
+                        <p class="chapter-text">
+                            He was watching from across the room. She didn't even care that he was there, completely focused on her plate in her lehenga. 
+                            When she left, he tried following the way back to her house — but lost sight in the crowd.
+                        </p>
+                        <div class="chapter-quote">“That should have been the end of the story. But fate had other plans.”</div>
+                    </div>
+                </div>
+
+                <!-- Chapter 2 -->
+                <div class="chapter-card reveal reverse">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge">CHAPTER 02</div>
+                        <img src="assets/photo_02.jpg" alt="Piggyback Ride on Back" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date">DECEMBER 2020 · THE FRONT DOOR</div>
+                        <h3 class="chapter-title">The Door & “Mil Gayi Ladki”.</h3>
+                        <p class="chapter-text">
+                            He came over to her home with his friend, planning to describe the mysterious girl he'd seen to her brother. 
+                            Then the door swung open. Jeans, shirt, casual top, and a subtle smile he tried so hard to hide.
+                        </p>
+                        <div class="chapter-quote">He whispered "Yes, mil gayi ladki." She still had no idea what was happening.</div>
+                    </div>
+                </div>
+
+                <!-- Chapter 3 -->
+                <div class="chapter-card reveal">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge">CHAPTER 03</div>
+                        <img src="assets/photo_19.jpg" alt="School Time Ballytia Morning Meets" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date">EARLY 2021 · SCHOOL DAYS & BALLYTIA MORNING MEETS</div>
+                        <h3 class="chapter-title">School Uniforms, Ballytia & “O Hero”.</h3>
+                        <p class="chapter-text">
+                            Her brother walked up to him and called out "O hero!" Neither knew they were about to become great friends. 
+                            We used to meet in Ballytia, a medical place, coming early in the morning in school uniforms just to see each other before classes started.
+                        </p>
+                        <div class="chapter-quote">Plot twist: Two guys competed, but she chose Utkarsh.</div>
+                    </div>
+                </div>
+
+                <!-- Chapter 4 -->
+                <div class="chapter-card reveal reverse">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge">CHAPTER 04</div>
+                        <img src="assets/photo_14.jpg" alt="#JANAM Ink Tattoo on Arm" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date">MID 2021 · SNAPCHAT, BUNKED COACHINGS & #JANAM</div>
+                        <h3 class="chapter-title">Bunking Coaching & “#JANAM”.</h3>
+                        <p class="chapter-text">
+                            A friend request. A little confusion. Bunking coaching classes just to steal precious moments together. 
+                            Then writing <strong>#JANAM... ♥</strong> in ink on his arm. Good morning, Good night, 11:11 wishes. Talking became an indispensable habit.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Chapter 5 -->
+                <div class="chapter-card reveal highlight-chapter">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge gold">CHAPTER 05</div>
+                        <img src="assets/photo_07.jpg" alt="Red Rose Wall Confession" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date highlight">16 OCTOBER 2021 · THE CONFESSION & RED ROSE WALL</div>
+                        <h3 class="chapter-title">“So, tell me.”</h3>
+                        <p class="chapter-text">
+                            He gave her an ultimatum: tell me if you feel something real, or we stop talking today. She didn't give a long speech. She simply replied:
+                        </p>
+                        <div class="hindi-quote">
+                            “इतना भी नहीं समझते बुद्धू, हम भी आपसे प्यार करते हैं।”
+                        </div>
+                        <div class="chapter-quote">And suddenly, our story had a date: 16·10.</div>
+                    </div>
+                </div>
+
+                <!-- Chapter 6 -->
+                <div class="chapter-card reveal reverse">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge">CHAPTER 06</div>
+                        <img src="assets/photo_47.jpg" alt="Home Dinner Date Decorations by Pari" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date">FEBRUARY 2022 · HOME DINNER DATE & SECRET LETTERS</div>
+                        <h3 class="chapter-title">Surprise Home Dinner Date & Diary.</h3>
+                        <p class="chapter-text">
+                            When talking on phones was forbidden, a handwritten diary became their bridge. 
+                            And when they could meet, Pari planned an unforgettable romantic dinner date at home with candle lights and heart decorations made by her own hands.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Chapter 7 -->
+                <div class="chapter-card reveal">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge">CHAPTER 07</div>
+                        <img src="assets/photo_16.jpg" alt="Softest Coolest Moment Sleeping Together" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date">05:00 AM · MORNING TWILIGHT & SOFTEST MOMENTS</div>
+                        <h3 class="chapter-title">The Terrace & Softest Moments.</h3>
+                        <p class="chapter-text">
+                            Waking up at 5:00 AM for quiet terrace meetings. Holding cheeks, resting heads, and falling asleep together — 
+                            the softest, coolest, most peaceful moments of our 5 years.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Chapter 8 -->
+                <div class="chapter-card reveal reverse">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge">CHAPTER 08</div>
+                        <img src="assets/photo_17.jpg" alt="Pointing at Phone Video Call" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date">2023 - 2024 · LONG DISTANCE & VIDEO CALLS</div>
+                        <h3 class="chapter-title">Same people. Different screens.</h3>
+                        <p class="chapter-text">
+                            School ended, studies moved to different cities. Late-night video calls, funny dog filters, pointing at phone screens ("Ur pati 🌻"), 
+                            and silly arguments — all because they cared so much and were learning how to hold on across miles.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Chapter 9 -->
+                <div class="chapter-card reveal">
+                    <div class="chapter-visual">
+                        <div class="chapter-badge gold">CHAPTER 09</div>
+                        <img src="assets/photo_40.jpg" alt="Galgotias College Signboard" class="chapter-img">
+                        <div class="visual-gradient"></div>
+                    </div>
+                    <div class="chapter-body">
+                        <div class="chapter-date highlight">PRESENT DAY · GALGOTIAS COLLEGE</div>
+                        <h3 class="chapter-title">Came to Galgotias for Him.</h3>
+                        <p class="chapter-text">
+                            Both worked hard, cleared JEE Mains & Advanced, and Pari came to Galgotias College Board because of him! 
+                            Walking side by side on campus road, trips to Vrindavan, ISKCON Noida, and Bobi's café dates — building our shared future together.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Big Quote Section 2 -->
+        <section class="quote-break-section alt-bg">
+            <div class="quote-container reveal">
+                <img src="assets/photo_43.jpg" alt="The Eyes They Never Lie" style="max-width: 420px; width: 90%; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);">
+                <div class="clock-ritual-badge">11 : 11</div>
+                <p class="quote-text">“The eyes, they never lie.”</p>
+                <div class="quote-author">FIVE YEARS LATER, THE MESSAGE STILL GOES OUT EVERY SINGLE DAY.</div>
+            </div>
+        </section>
+
+        <!-- Dedicated Personal Photo Story Highlights Section -->
+        <section id="special-moments" class="special-moments-section">
+            <div class="section-header reveal">
+                <div class="section-tag">SPECIAL PHOTO MEMORIES</div>
+                <h2 class="section-title">Our Greatest Photo Stories</h2>
+                <p class="section-subtitle">Every single memory recounted by Pari, brought to life through our photos.</p>
+            </div>
+
+            <div class="moments-grid">
+                
+                <!-- Moment 1: Vrindavan Trip -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_53.jpg" alt="Vrindavan Trip" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">TRIP</span>
+                        <h4 class="moment-title">Vrindavan Trip Together</h4>
+                        <p class="moment-desc">Visiting the sacred temple together, holding flowers & blessings side by side.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 2: Shopping Mall Jeans -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_52.jpg" alt="Shopping Mall" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">FUN</span>
+                        <h4 class="moment-title">Shopping Mall & Jeans</h4>
+                        <p class="moment-desc">The day he made me buy the jeans when we went shopping at the mall!</p>
+                    </div>
+                </div>
+
+                <!-- Moment 3: First Night Out -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_50.jpg" alt="First Night Out" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">NIGHT OUT</span>
+                        <h4 class="moment-title">First Night Out</h4>
+                        <p class="moment-desc">Enjoying our very first late-night out together with sunglasses and laughter.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 4: ISKCON Noida -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_49.jpg" alt="ISKCON Noida" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">SPIRITUAL</span>
+                        <h4 class="moment-title">ISKCON Noida Visit</h4>
+                        <p class="moment-desc">Standing in front of the temple wall painting on our spiritual day trip.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 5: Home Dinner Date -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_47.jpg" alt="Home Dinner Date" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">ROMANTIC</span>
+                        <h4 class="moment-title">Surprise Home Dinner Date</h4>
+                        <p class="moment-desc">Planned at home with fairy lights and candle hearts decorated by Pari's own hands.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 6: My Favorite Kiss -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_44.jpg" alt="Favorite Kiss" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">LOVE</span>
+                        <h4 class="moment-title">My Absolute Favorite Photo</h4>
+                        <p class="moment-desc">He is holding me and kissing my cheek — Pari's favorite photo of all time!</p>
+                    </div>
+                </div>
+
+                <!-- Moment 7: Friends Outing -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_45.jpg" alt="Friends Outing" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">OUTING</span>
+                        <h4 class="moment-title">Bobi's Café & Friends Outing</h4>
+                        <p class="moment-desc">Outing with Pari's best friend where Utkarsh paid the entire bill!</p>
+                    </div>
+                </div>
+
+                <!-- Moment 8: School Time Morning Meets -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_19.jpg" alt="School Time Ballytia" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">SCHOOL DAYS</span>
+                        <h4 class="moment-title">Ballytia Morning Meets</h4>
+                        <p class="moment-desc">Meeting early in the morning in school uniforms at Ballytia medical place before school.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 9: Auto Rickshaw Ride -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_34.jpg" alt="Auto Rickshaw Ride" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">TRAVEL</span>
+                        <h4 class="moment-title">Auto-Rickshaw Rides</h4>
+                        <p class="moment-desc">Leaning on his shoulder during quiet auto-rickshaw rides together across town.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 10: Sleeping On Him -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_33.jpg" alt="Sleeping On Him" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">COZY</span>
+                        <h4 class="moment-title">Sleeping On Him</h4>
+                        <p class="moment-desc">The softest moment of Pari resting peacefully on Utkarsh's chest.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 11: Movie Date -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_31.jpg" alt="Movie Date" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">DATE</span>
+                        <h4 class="moment-title">Movie Date Pose</h4>
+                        <p class="moment-desc">Posing together outside the cinema theater on our movie date night.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 12: School Time Holi -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_24.jpg" alt="School Time Holi" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">HOLI</span>
+                        <h4 class="moment-title">School Time Holi Celebration</h4>
+                        <p class="moment-desc">Playing Holi with gulal colors on our faces back during school days!</p>
+                    </div>
+                </div>
+
+                <!-- Moment 13: Blushing Red Shirt -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_23.jpg" alt="Blushing Laugh" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">LAUGHTER</span>
+                        <h4 class="moment-title">Hiding My Face Laughing</h4>
+                        <p class="moment-desc">Pari hiding her blushing face because he keeps making her laugh!</p>
+                    </div>
+                </div>
+
+                <!-- Moment 14: Romantic Neck Kiss -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_22.jpg" alt="Romantic Neck Kiss" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">ROMANCE</span>
+                        <h4 class="moment-title">Romantic Mirror Hug</h4>
+                        <p class="moment-desc">A sweet romantic moment holding her close and kissing her neck.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 15: Softest Moment Sleeping -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_16.jpg" alt="Softest Moment Sleeping" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">SOFTEST MOMENT</span>
+                        <h4 class="moment-title">The Softest, Coolest Moment</h4>
+                        <p class="moment-desc">Utkarsh sleeping peacefully with Pari — her favorite softest memory.</p>
+                    </div>
+                </div>
+
+                <!-- Moment 16: Most Aesthetic Photo -->
+                <div class="moment-card reveal">
+                    <img src="assets/photo_06.jpg" alt="Most Aesthetic Photo" class="moment-img">
+                    <div class="moment-overlay">
+                        <span class="moment-tag">AESTHETIC</span>
+                        <h4 class="moment-title">Most Aesthetic Photo of Us</h4>
+                        <p class="moment-desc">Pari in her black polka dot dress leaning against Utkarsh.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3D Interactive Memory Flip Deck -->
+        <section id="memories" class="memories-deck-section">
+            <div class="section-header reveal">
+                <div class="section-tag">INTERACTIVE CARDS</div>
+                <h2 class="section-title">The Memory Deck</h2>
+                <p class="section-subtitle">Click or tap any card to flip it over and reveal our secret memories!</p>
+            </div>
+
+            <div class="cards-grid">
+                <!-- Card 1 -->
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fa-solid fa-utensils card-icon"></i>
+                            <h3>The Ambika Outfit</h3>
+                            <span class="tap-hint"><i class="fa-solid fa-hand-pointer"></i> Tap to flip</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>You were wearing a stunning lehenga and eating food completely unbothered while Utkarsh kept staring from afar!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fa-solid fa-bag-shopping card-icon"></i>
+                            <h3>Mall & Jeans Shopping</h3>
+                            <span class="tap-hint"><i class="fa-solid fa-hand-pointer"></i> Tap to flip</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>He made me buy the jeans when we went shopping at the mall together!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fa-solid fa-heart card-icon"></i>
+                            <h3>#JANAM Tattoo</h3>
+                            <span class="tap-hint"><i class="fa-solid fa-hand-pointer"></i> Tap to flip</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Writing #JANAM... with a heart on his arm — a secret token of love that stayed forever!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fa-solid fa-candle-holder card-icon"></i>
+                            <h3>Home Dinner Date</h3>
+                            <span class="tap-hint"><i class="fa-solid fa-hand-pointer"></i> Tap to flip</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Surprise candlelit dinner date planned at home with all decorations made by Pari ❤️</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fa-solid fa-face-kiss-heart card-icon"></i>
+                            <h3>My Favorite Kiss</h3>
+                            <span class="tap-hint"><i class="fa-solid fa-hand-pointer"></i> Tap to flip</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>He is holding me and kissing me — Pari's absolute favorite photo of all time!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fa-solid fa-graduation-cap card-icon"></i>
+                            <h3>Galgotias College</h3>
+                            <span class="tap-hint"><i class="fa-solid fa-hand-pointer"></i> Tap to flip</span>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>Came to Galgotias College Board because of him, walking arm-in-arm on campus road!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Love Quiz & Time Capsule -->
+        <section id="quiz" class="quiz-section">
+            <div class="quiz-card reveal">
+                <div class="quiz-badge"><i class="fa-solid fa-gamepad"></i> LOVE TRIVIA QUIZ</div>
+                <h2 class="quiz-title">How well do you remember our story?</h2>
+                
+                <div id="quizContainer">
+                    <div class="quiz-question-box">
+                        <span class="q-num" id="qNum">Question 1 of 3</span>
+                        <h3 class="q-text" id="qText">What was the password to our story?</h3>
+                        <div class="q-options" id="qOptions">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="quizResult" class="quiz-result hidden">
+                    <div class="trophy-icon"><i class="fa-solid fa-trophy"></i></div>
+                    <h3>Quiz Complete!</h3>
+                    <p id="resultText">You scored 3/3! You remember every single detail of our 5 years! ❤️</p>
+                    <button class="btn btn-primary" onclick="restartQuiz()"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Media Vault / Slideshow Theatre Section -->
+        <section id="archive" class="archive-section">
+            <div class="section-header reveal">
+                <div class="section-tag">PRIVATE CINEMA VAULT</div>
+                <h2 class="section-title">53 Memories — Slideshow Theatre</h2>
+                <p class="section-subtitle">Sit back and experience all our 53 memories in an automatic romantic slideshow accompanied by soft music.</p>
+            </div>
+
+            <!-- Slideshow Container -->
+            <div class="slideshow-container reveal" id="slideshowBox">
+                <div class="slide-display">
+                    <img id="slideImg" src="assets/photo_01.jpg" alt="Memory Slide">
+                    <div class="slide-caption-bar">
+                        <span class="slide-count-badge" id="slideBadge">Memory 1 of 53</span>
+                        <h3 class="slide-title-text" id="slideTitle">Utkarsh & Pari Forever</h3>
+                    </div>
+                </div>
+
+                <!-- Slideshow Navigation Controls -->
+                <div class="slideshow-controls">
+                    <button class="slide-control-btn" onclick="prevSlide()" title="Previous Memory"><i class="fa-solid fa-backward-step"></i> Prev</button>
+                    <button class="slide-control-btn play-pause-btn" id="slideshowPlayBtn" onclick="toggleSlideshow()"><i class="fa-solid fa-pause"></i> Pause Slideshow</button>
+                    <button class="slide-control-btn" onclick="nextSlide()" title="Next Memory">Next <i class="fa-solid fa-forward-step"></i></button>
+                    
+                    <!-- Soft Music Quick Toggle -->
+                    <button class="slide-control-btn music-slide-btn" id="slideshowMusicBtn" onclick="toggleSoftMusic()">
+                        <i class="fa-solid fa-compact-disc spin-icon"></i> <span id="musicBtnLabel">Soft Music: ON</span>
+                    </button>
+                </div>
+
+                <!-- Thumbnails Strip -->
+                <div class="slideshow-thumbnails" id="slideThumbs">
+                    <!-- Injected by app.js -->
+                </div>
+            </div>
+
+            <!-- Video Vault & Cinema Player Section -->
+            <div class="video-vault-wrapper reveal" style="margin-top: 60px;">
+                <div class="section-header" style="margin-bottom: 30px;">
+                    <div class="section-tag" style="color: var(--netflix-red);"><i class="fa-solid fa-clapperboard"></i> VIDEO VAULT</div>
+                    <h2 class="section-title">Video Memories & Reels</h2>
+                    <p class="section-subtitle">A dedicated video vault for all your special clip reels and video memories.</p>
+                </div>
+
+                <!-- Video Grid Showcase -->
+                <div class="video-grid" id="videoGrid">
+                    <!-- Default Video Placeholder Slot -->
+                    <div class="video-card-slot" onclick="document.getElementById('fileInput').click()">
+                        <div class="video-slot-inner">
+                            <i class="fa-solid fa-circle-plus video-slot-icon"></i>
+                            <h4>Add Your Videos Here</h4>
+                            <p>Click or drag & drop video files (.mp4, .mov) to upload instantly!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Bar for Drag & Drop -->
+            <div class="upload-dropzone" id="dropzone" style="margin-top: 50px;">
+                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                <div class="drop-text">Drag & drop new photos, videos, or audio songs here to add directly to the website!</div>
+                <input type="file" id="fileInput" multiple accept="image/*,video/*,audio/*" class="file-input">
+                <label for="fileInput" class="btn btn-secondary btn-sm"><i class="fa-solid fa-folder-open"></i> Choose Files</label>
+            </div>
+        </section>
+
+        <!-- Hidden Audio Element for Custom Songs -->
+        <audio id="customAudio" loop></audio>
+
+        <!-- End Credits Section -->
+        <section class="credits-section">
+            <div class="credits-content reveal">
+                <div class="credits-tag">END CREDITS</div>
+                <h2 class="credits-main-title">To Be Continued.</h2>
+                <p class="credits-subtext">
+                    Because five years was never supposed to be the ending.<br>
+                    It was just Season 1.
+                </p>
+                <div class="heart-signature">Happy Birthday & 5th Anniversary, Utkarsh! ❤️</div>
+                <div class="credits-date">16 · 10 · 2021  ➔  FOREVER</div>
+                
+                <button class="btn btn-primary fireworks-btn" onclick="triggerFireworks()">
+                    <i class="fa-solid fa-sparkles"></i> CELEBRATE WITH FIREWORKS
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>UTKARSH × PARI — PRIVATE SCREENING EDITION</div>
+            <div>MADE WITH LOVE & MEMORIES · 2026</div>
+        </footer>
+
+    </div>
+
+    <!-- Fullscreen Lightbox Modal -->
+    <div id="lightboxModal" class="lightbox-modal" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <div class="lightbox-content" id="lightboxContent">
+            <!-- Dynamic content injected by app.js -->
+        </div>
+    </div>
+
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
