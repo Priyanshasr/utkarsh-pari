@@ -63,33 +63,70 @@ const mediaVault = [
     { type: 'image', url: 'assets/photo_01.jpg', title: 'Utkarsh & Pari Forever' }
 ];
 
+// Helper for playing sound effects safely
+function playSynthBeep(freq, duration = 0.15) {
+    try {
+        if (!audioCtx) {
+            const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtxClass) audioCtx = new AudioCtxClass();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    } catch (err) {
+        // Silently ignore audio context errors
+    }
+}
+
 // --- 2. Password Unlock Logic ---
 function handleUnlock(e) {
-    e.preventDefault();
-    const input = document.getElementById('passInput').value.trim();
+    if (e) e.preventDefault();
+    const inputEl = document.getElementById('passInput');
+    const input = (inputEl ? inputEl.value : '').trim().toLowerCase();
     const errorDiv = document.getElementById('passError');
     const lockCard = document.querySelector('.lock-card');
 
-    if (input === '16-10' || input === '1610' || input === '16/10') {
-        errorDiv.textContent = '';
-        localStorage.setItem('up_unlocked', 'true');
+    const validPasswords = ['16-10', '1610', '16/10', '16.10', '16 10', '16-10-2021', '16/10/2021', '16102021', '16-10-21', '16/10/21', '16 oct', '16 october'];
+
+    if (validPasswords.includes(input) || (input.includes('16') && input.includes('10'))) {
+        if (errorDiv) errorDiv.textContent = '';
+        try { localStorage.setItem('up_unlocked', 'true'); } catch (err) {}
         
         playSynthBeep(440, 0.1);
         setTimeout(() => playSynthBeep(880, 0.2), 150);
 
-        document.getElementById('passwordScreen').style.opacity = '0';
-        document.getElementById('passwordScreen').style.transition = 'opacity 0.6s ease';
+        const pwScreen = document.getElementById('passwordScreen');
+        if (pwScreen) {
+            pwScreen.style.opacity = '0';
+            pwScreen.style.transition = 'opacity 0.6s ease';
+        }
         
         setTimeout(() => {
-            document.getElementById('passwordScreen').classList.add('hidden');
-            document.getElementById('appShell').classList.remove('hidden');
+            if (pwScreen) pwScreen.classList.add('hidden');
+            const appShell = document.getElementById('appShell');
+            if (appShell) appShell.classList.remove('hidden');
             initApp();
         }, 600);
     } else {
-        errorDiv.textContent = 'Incorrect password. Hint: 16-10';
-        lockCard.classList.add('shake');
+        if (errorDiv) errorDiv.textContent = 'Incorrect password. (Hint: 16-10)';
+        if (lockCard) lockCard.classList.add('shake');
         playSynthBeep(200, 0.3);
-        setTimeout(() => lockCard.classList.remove('shake'), 400);
+        setTimeout(() => {
+            if (lockCard) lockCard.classList.remove('shake');
+        }, 400);
     }
 }
 
@@ -321,11 +358,12 @@ function toggleSoftMusic() {
         if (label) label.textContent = 'Soft Music: ON';
         if (eq) eq.classList.add('playing');
         isAudioPlaying = true;
-        playAmbientSoundtrack();
+        startSoftMusic();
     } else {
         if (label) label.textContent = 'Soft Music: OFF';
         if (eq) eq.classList.remove('playing');
         isAudioPlaying = false;
+        stopSoftMusic();
     }
 }
 
